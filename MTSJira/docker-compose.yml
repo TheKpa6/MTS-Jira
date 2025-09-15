@@ -1,0 +1,46 @@
+services:
+  mts_jira_be:
+    build:
+      context: .
+    ports:
+      - "44392:44392"
+    depends_on:
+      - postgres
+    networks:
+      - mts_jira_net
+    container_name: mts_jira_be
+  postgres:
+    image: postgres:16
+    container_name: mts_jira_postgres
+    restart: always
+    command: >
+      postgres -c max_connections=1000
+               -c shared_buffers=256MB
+               -c effective_cache_size=768MB
+               -c maintenance_work_mem=64MB
+               -c checkpoint_completion_target=0.7
+               -c wal_buffers=16MB
+               -c default_statistics_target=100
+    environment:
+      POSTGRES_DB: "MtsJiraDb"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - MtsJiraDb:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - mts_jira_net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s       
+      retries: 5
+    tty: true
+    stdin_open: true
+volumes:
+  MtsJiraDb:
+
+networks:
+  mts_jira_net:
