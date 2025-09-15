@@ -1,0 +1,6 @@
+@MTSJira_HostAddress = http://localhost:5282
+
+GET {{MTSJira_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
