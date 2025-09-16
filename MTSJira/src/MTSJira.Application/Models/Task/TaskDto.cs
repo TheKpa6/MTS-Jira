@@ -11,7 +11,15 @@ namespace MTSJira.Application.Models.Task
         public string? Author { get; set; }
         public string? Assignee { get; set; }
         public int? ParentTaskId { get; set; }
-        public TaskDto? ParentTask { get; set; }
-        public ICollection<TaskDto> Subtasks { get; set; } = new List<TaskDto>();
+        public ICollection<int> SubtasksIds { get; set; } = new List<int>();
+        public ICollection<TaskRelationshipDto> RelatedTasksIds { get; set; } = new List<TaskRelationshipDto>();
+        public ICollection<TaskRelationshipDto> RelatedToTasksIds { get; set; } = new List<TaskRelationshipDto>();
+    }
+
+    public class TaskRelationshipDto
+    {
+        public int SourceTaskId { get; set; }
+
+        public int RelatedTaskId { get; set; }
     }
 }

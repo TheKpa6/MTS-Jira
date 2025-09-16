@@ -4,37 +4,46 @@ using MTSJira.Application.Models.Task;
 
 namespace MTSJira.Application.Commands
 {
-    public class UpdateTaskCommand : IRequest<int>
+    public class UpdateTaskCommand : IRequest<TaskDto>
     {
-        public UpdateTaskRequest Request { get; set; }
         public int Id { get; set; }
+        public UpdateTaskRequest Request { get; set; } = null!;
     }
 
-    public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, int>
+    public class UpdateTaskWithRelationsCommandHandler : IRequestHandler<UpdateTaskCommand, TaskDto>
     {
         private readonly ITaskRepository _taskRepository;
 
-        public UpdateTaskCommandHandler(ITaskRepository taskRepository)
+        public UpdateTaskWithRelationsCommandHandler(ITaskRepository taskRepository)
         {
             _taskRepository = taskRepository;
         }
 
-        public async Task<int> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
+        public async Task<TaskDto> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
         {
-            var taskData = new Domain.Entities.TaskData
+            var taskData = await _taskRepository.Update(request.Id, request.Request);
+
+            return new TaskDto
             {
-                Id = request.Id,
-                Assignee = request.Request.Assignee,
-                Author = request.Request.Author,
-                ParentTaskId = request.Request.ParentTaskId,
-                Priority = request.Request.Priority,
-                Status = request.Request.Status,
-                Title = request.Request.Title,
+                Id = taskData.Id,
+                Title = taskData.Title,
+                ParentTaskId = taskData.ParentTaskId,
+                Assignee = taskData.Assignee,
+                Author = taskData.Author,
+                Priority = taskData.Priority,
+                Status = taskData.Status,
+                SubtasksIds = taskData.Subtasks.Select(t => taskData.Id).ToList(),
+                RelatedTasksIds = taskData.RelatedTasks.Select(t => new TaskRelationshipDto
+                {
+                    RelatedTaskId = t.RelatedTaskId,
+                    SourceTaskId = t.SourceTaskId,
+                }).ToList(),
+                RelatedToTasksIds = taskData.RelatedToTasks.Select(t => new TaskRelationshipDto
+                {
+                    RelatedTaskId = t.RelatedTaskId,
+                    SourceTaskId = t.SourceTaskId,
+                }).ToList(),
             };
-
-            await _taskRepository.UpdateTaskAsync(taskData);
-
-            return taskData.Id;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MTSJira.Application.InfrastructureContracts.Repositories;
+using MTSJira.Application.Models.Task;
 using MTSJira.Domain.Entities;
 using MTSJira.Infrastructure.Database.Contexts;
 
@@ -30,19 +31,150 @@ namespace MTSJira.Infrastructure.Repositories
 
         public async Task DeleteTaskAsync(TaskData taskData)
         {
+            _dbContext.TaskRelationships.RemoveRange(taskData.RelatedTasks);
+            _dbContext.TaskRelationships.RemoveRange(taskData.RelatedToTasks);
             _dbContext.Tasks.Remove(taskData);
 
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<TaskData>> GetAllTasksAsync()
+        public async Task<ICollection<TaskData>> GetAllTasksAsync()
         {
-            return await _dbContext.Tasks.Include(x => x.ParentTask).Include(x => x.Subtasks).ToListAsync();
+            return await _dbContext.Tasks
+                .Include(t => t.Subtasks)
+                .Include(t => t.RelatedTasks)
+                .Include(t => t.RelatedToTasks)
+                .ToListAsync();
         }
 
-        public async Task<TaskData> GetTaskByIdAsync(int id)
+        public async Task<TaskData?> GetTaskByIdAsync(int id)
         {
-            return await _dbContext.Tasks.Include(x => x.ParentTask).Include(x => x.Subtasks).FirstOrDefaultAsync(x => x.Id == id);
+            return await _dbContext.Tasks
+                .Include(t => t.Subtasks)
+                .Include(t => t.RelatedTasks)
+                .Include(t => t.RelatedToTasks)
+                .FirstOrDefaultAsync(t => t.Id == id);
+        }
+
+        public async Task<TaskData?> Update(int id, UpdateTaskRequest request)
+        {
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                var task = await GetTaskByIdAsync(id);
+
+                if (task == null)
+                    throw new Exception($"Task with ID {id} not found");
+
+                UpdateTaskProperties(task, request);
+
+                await UpdateParentTask(task, request.ParentTaskId);
+
+                await UpdateTaskRelationships(task, request);
+
+                await _dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return await GetTaskByIdAsync(id);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        private void UpdateTaskProperties(TaskData task, UpdateTaskRequest request)
+        {
+            task.Title = request.Title;
+            task.Status = request.Status;
+            task.Priority = request.Priority;
+            task.Author = request.Author;
+            task.Assignee = request.Assignee;
+        }
+
+        private async Task UpdateParentTask(TaskData task, int? newParentTaskId)
+        {
+            if (task.ParentTaskId == newParentTaskId)
+                return;
+
+            if (newParentTaskId.HasValue)
+            {
+                var parentTask = await _dbContext.Tasks
+                    .FirstOrDefaultAsync(t => t.Id == newParentTaskId.Value);
+
+                if (parentTask == null)
+                    throw new Exception($"Parent task with ID {newParentTaskId} not found");
+
+                if (await IsCycle(task.Id, newParentTaskId.Value))
+                    throw new InvalidOperationException("Cannot set parent task: circular dependency detected");
+            }
+
+            task.ParentTaskId = newParentTaskId;
+        }
+
+        private async Task<bool> IsCycle(int taskId, int? potentialParentId)
+        {
+            var current = potentialParentId;
+            var visited = new HashSet<int> { taskId };
+
+            while (current.HasValue)
+            {
+                if (visited.Contains(current.Value))
+                    return true;
+
+                visited.Add(current.Value);
+
+                var parentTask = await _dbContext.Tasks
+                    .FirstOrDefaultAsync(t => t.Id == current.Value);
+
+                current = parentTask?.ParentTaskId;
+            }
+
+            return false;
+        }
+
+        private async Task UpdateTaskRelationships(TaskData task, UpdateTaskRequest request)
+        {
+            _dbContext.TaskRelationships.RemoveRange(task.RelatedTasks);
+            _dbContext.TaskRelationships.RemoveRange(task.RelatedToTasks);
+
+            foreach (var relatedTaskDto in request.RelatedTasks)
+            {
+                await ValidateAndAddRelationship(
+                    task.Id,
+                    relatedTaskDto.RelatedTaskId,
+                    true);
+            }
+
+            foreach (var incomingRelationDto in request.RelatedToTasks)
+            {
+                await ValidateAndAddRelationship(
+                    task.Id,
+                    incomingRelationDto.SourceTaskId,
+                    false);
+            }
+        }
+
+        private async Task ValidateAndAddRelationship(int taskId, int relatedTaskId, bool isRelatedTask)
+        {
+            var relatedTask = await _dbContext.Tasks
+                .FirstOrDefaultAsync(t => t.Id == relatedTaskId);
+
+            if (relatedTask == null)
+                throw new Exception($"Related task with ID {relatedTaskId} not found");
+
+            if (relatedTaskId == taskId)
+                throw new InvalidOperationException("Cannot create relationship to self");
+
+            var relationship = new TaskRelationshipData
+            {
+                SourceTaskId = isRelatedTask ? taskId : relatedTaskId,
+                RelatedTaskId = isRelatedTask ? relatedTaskId : taskId,
+            };
+
+            await _dbContext.TaskRelationships.AddAsync(relationship);
         }
     }
 }

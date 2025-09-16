@@ -2,6 +2,7 @@
 using MTSJira.Infrastructure.Database.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MTSJira.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(JiraDbContext))]
-    partial class JiraDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250916113720_init2")]
+    partial class init2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,6 +68,10 @@ namespace MTSJira.Infrastructure.Database.Migrations
 
                     b.Property<int>("RelatedTaskId")
                         .HasColumnType("integer");
+
+                    b.Property<string>("RelationshipType")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("SourceTaskId")
                         .HasColumnType("integer");

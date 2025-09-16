@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using MTSJira.Application.InfrastructureContracts.Repositories;
 using MTSJira.Application.Models.Task;
-using System.Threading.Tasks;
 
 namespace MTSJira.Application.Queries
 {
@@ -20,18 +19,31 @@ namespace MTSJira.Application.Queries
 
         public async Task<IEnumerable<TaskDto>> Handle(GetAllTasksQuery request, CancellationToken cancellationToken)
         {
-            var tasks = await _taskRepository.GetAllTasksAsync();
+            var taskData = await _taskRepository.GetAllTasksAsync();
 
-            return tasks.Select(x => new TaskDto
+            return taskData
+            .Select(t => new TaskDto
             {
-                Id = x.Id,
-                Assignee = x.Assignee,
-                Author = x.Author,
-                ParentTaskId = x.ParentTaskId,
-                Priority = x.Priority,
-                Status = x.Status,
-                Title = x.Title,
-            });
+                Id = t.Id,
+                Title = t.Title,
+                ParentTaskId = t.ParentTaskId,
+                Assignee = t.Assignee,
+                Author = t.Author,
+                Priority = t.Priority,
+                Status = t.Status,
+                SubtasksIds = t.Subtasks.Select(t => t.Id).ToList(),
+                RelatedTasksIds = t.RelatedTasks.Select(t => new TaskRelationshipDto
+                {
+                    RelatedTaskId = t.RelatedTaskId,
+                    SourceTaskId = t.SourceTaskId,
+                }).ToList(),
+                RelatedToTasksIds = t.RelatedToTasks.Select(t => new TaskRelationshipDto
+                {
+                    RelatedTaskId = t.RelatedTaskId,
+                    SourceTaskId = t.SourceTaskId,
+                }).ToList(),
+            })
+            .ToList();
         }
     }
 }

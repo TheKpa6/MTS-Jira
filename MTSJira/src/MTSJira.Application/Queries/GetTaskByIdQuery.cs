@@ -20,28 +20,28 @@ namespace MTSJira.Application.Queries
 
         public async Task<TaskDto> Handle(GetTaskByIdQuery request, CancellationToken cancellationToken)
         {
-            //var task = await _context.Tasks
-            //    .Include(t => t.Author)
-            //    .Include(t => t.Assignee)
-            //    .Include(t => t.Subtasks)
-            //    .Include(t => t.RelatedTasks)
-            //    .ThenInclude(rt => rt.RelatedTask)
-            //    .FirstOrDefaultAsync(t => t.Id == request.Id, cancellationToken);
-
-            var task = await _taskRepository.GetTaskByIdAsync(request.Id);
-
-            if (task == null)
-                throw new Exception($"Task with ID {request.Id} not found");
+            var taskData = await _taskRepository.GetTaskByIdAsync(request.Id);
 
             return new TaskDto
             {
-                Id = task.Id,
-                Assignee = task.Assignee,
-                Author = task.Author,
-                ParentTaskId = task.ParentTaskId,
-                Priority = task.Priority,
-                Status = task.Status,
-                Title = task.Title,
+                Id = taskData.Id,
+                Title = taskData.Title,
+                ParentTaskId = taskData.ParentTaskId,
+                Assignee = taskData.Assignee,
+                Author = taskData.Author,
+                Priority = taskData.Priority,
+                Status = taskData.Status,
+                SubtasksIds = taskData.Subtasks.Select(t => taskData.Id).ToList(),
+                RelatedTasksIds = taskData.RelatedTasks.Select(t => new TaskRelationshipDto
+                {
+                    RelatedTaskId = t.RelatedTaskId,
+                    SourceTaskId = t.SourceTaskId,
+                }).ToList(),
+                RelatedToTasksIds = taskData.RelatedToTasks.Select(t => new TaskRelationshipDto
+                {
+                    RelatedTaskId = t.RelatedTaskId,
+                    SourceTaskId = t.SourceTaskId,
+                }).ToList(),
             };
         }
     }

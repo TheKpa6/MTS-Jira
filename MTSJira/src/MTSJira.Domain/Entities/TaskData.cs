@@ -11,7 +11,21 @@ namespace MTSJira.Domain.Entities
         public string? Author { get; set; }
         public string? Assignee { get; set; }
         public int? ParentTaskId { get; set; }
+
         public virtual TaskData? ParentTask { get; set; }
         public virtual ICollection<TaskData> Subtasks { get; set; } = new List<TaskData>();
+        public virtual ICollection<TaskRelationshipData> RelatedTasks { get; set; } = new List<TaskRelationshipData>();
+        public virtual ICollection<TaskRelationshipData> RelatedToTasks { get; set; } = new List<TaskRelationshipData>();
+    }
+
+    public class TaskRelationshipData
+    {
+        public int Id { get; set; }
+
+        public int SourceTaskId { get; set; }
+        public virtual TaskData SourceTask { get; set; } = null!;
+
+        public int RelatedTaskId { get; set; }
+        public virtual TaskData RelatedTask { get; set; } = null!;
     }
 }

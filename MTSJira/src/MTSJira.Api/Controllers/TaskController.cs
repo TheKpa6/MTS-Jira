@@ -1,11 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MTSJira.Api.Models.Task;
 using MTSJira.Application.Commands;
 using MTSJira.Application.Models.Task;
 using MTSJira.Application.Queries;
-using System.Security.Claims;
 
 namespace MTSJira.Api.Controllers
 {
@@ -43,7 +41,7 @@ namespace MTSJira.Api.Controllers
             var author = User.FindFirst("Login")?.Value ?? string.Empty;
             var command = new CreateTaskCommand
             {
-                Request = new Application.Models.Task.CreateTaskRequest
+                Request = new CreateTaskRequest
                 {
                     Assignee = request.Assignee,
                     ParentTaskId = request.ParentTaskId,
@@ -65,14 +63,22 @@ namespace MTSJira.Api.Controllers
             var command = new UpdateTaskCommand
             {
                 Id = id,
-                Request = new Application.Models.Task.UpdateTaskRequest
+                Request = new UpdateTaskRequest
                 {
                     Assignee = request.Assignee,
-                    Author = request.Author,
                     ParentTaskId = request.ParentTaskId,
                     Title = request.Title,
                     Priority = Enum.Parse<Domain.Enums.TaskPriority>(request.Priority.ToString()),
                     Status = Enum.Parse<Domain.Enums.TaskStatus>(request.Status.ToString()),
+                    Author = request.Author,
+                    RelatedTasks = request.RelatedTasks.Select(t => new RelatedTaskDto
+                    {
+                        RelatedTaskId = t.RelatedTaskId
+                    }).ToList(),
+                    RelatedToTasks = request.RelatedToTasks.Select(t => new RelatedToTasksDto
+                    {
+                        SourceTaskId = t.SourceTaskId,
+                    }).ToList()
                 },
             };
             var result = await _mediator.Send(command);
