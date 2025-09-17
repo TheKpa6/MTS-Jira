@@ -4,7 +4,6 @@ using MTSJira.Api.Models;
 using MTSJira.Application.Models.Task;
 using MTSJira.Application.Services.TaskService.Contract;
 using MTSJira.Domain.Common.Enums;
-using MTSJira.Domain.Entities.Enums;
 
 namespace MTSJira.Api.Controllers
 {
@@ -123,14 +122,14 @@ namespace MTSJira.Api.Controllers
 
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(ApiResultNoData))]
-        public async Task<ActionResult<ApiResultNoData>> DeleteTask(int id)
+        public async Task<IActionResult> DeleteTask(int id)
         {
             var result = await _taskService.DeleteTaskAsync(id);
 
             switch (result.ErrorCode)
             {
                 case CommonErrorCode.None:
-                    return StatusCode(StatusCodes.Status204NoContent, new ApiResultNoData());
+                    return StatusCode(StatusCodes.Status204NoContent);
                 case CommonErrorCode.Exception:
                     return BadRequest(new ApiResultNoData(result.Message, result.Ex.StackTrace));
                 default:
@@ -139,7 +138,7 @@ namespace MTSJira.Api.Controllers
         }
 
         [HttpPatch("{id}/status")]
-        public async Task<ActionResult<ApiResultNoData>> UpdateTaskStatus([FromRoute] int id, [FromBody] Models.Task.UpdateTaskStatusRequest request)
+        public async Task<IActionResult> UpdateTaskStatus([FromRoute] int id, [FromBody] Models.Task.UpdateTaskStatusRequest request)
         {
             var requestDto = new UpdateTaskStatusRequest
             {
@@ -151,7 +150,7 @@ namespace MTSJira.Api.Controllers
             switch (result.ErrorCode)
             {
                 case CommonErrorCode.None:
-                    return StatusCode(StatusCodes.Status204NoContent, new ApiResultNoData());
+                    return StatusCode(StatusCodes.Status204NoContent);
                 case CommonErrorCode.Exception:
                     return BadRequest(new ApiResultNoData(result.Message, result.Ex.StackTrace));
                 default:
