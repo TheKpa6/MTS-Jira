@@ -23,6 +23,11 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "MTS.Jira.Api", Version = "v1" });
     c.CustomSchemaIds(type => type.FullName);
+
+    string directory = AppContext.BaseDirectory;
+    string filePath = Path.Combine(directory, "MTSJira.Api.xml");
+    c.IncludeXmlComments(filePath);
+
     c.OperationFilter<AuthResponsesOperationFilter>();
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -86,10 +91,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<JiraDbContext>();
-    dbContext.Database.Migrate();
-}
+app.MigrateDatabase();
 
 app.Run();

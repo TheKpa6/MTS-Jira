@@ -10,7 +10,7 @@ namespace MTSJira.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
+    [AllowAnonymous] 
     public class AuthController : ControllerBase
     {
         private readonly IJwtService _jwtService;
@@ -20,9 +20,14 @@ namespace MTSJira.Api.Controllers
             _jwtService = jwtService;
         }
 
+        /// <summary>
+        /// Метод для авторизации пользователей
+        /// </summary>
+        /// <param name="request">Модель запроса</param>
+        /// <returns>JWT токен</returns>
         [HttpPost("login")]
-        //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponse))]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResult<string>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResultNoData))]
         public ActionResult<ApiResult<string>> Login([FromBody] LoginRequest request)
         {
             if (request.Password != "qwerty123")
