@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MTSJira.Application.InfrastructureContracts.Repositories;
 using MTSJira.Application.Models.Task;
+using MTSJira.Domain.Common.Enums;
 using MTSJira.Domain.Entities;
+using MTSJira.Domain.Exceptions;
 using MTSJira.Infrastructure.Database.Contexts;
 
 namespace MTSJira.Infrastructure.Repositories
@@ -88,7 +90,7 @@ namespace MTSJira.Infrastructure.Repositories
                 var task = await GetTaskByIdAsync(id);
 
                 if (task == null)
-                    throw new Exception($"Task with ID {id} not found");
+                    throw new JiraApplicationException($"Task with ID {id} not found", CommonErrorCode.ObjectNotFound);
 
                 UpdateTaskProperties(task, request);
 
@@ -128,10 +130,10 @@ namespace MTSJira.Infrastructure.Repositories
                     .FirstOrDefaultAsync(t => t.Id == newParentTaskId.Value);
 
                 if (parentTask == null)
-                    throw new Exception($"Parent task with ID {newParentTaskId} not found");
+                    throw new JiraApplicationException($"Parent task with ID {newParentTaskId} not found", CommonErrorCode.ObjectNotFound);
 
                 if (await IsCycle(task.Id, newParentTaskId.Value))
-                    throw new InvalidOperationException("Cannot set parent task: circular dependency detected");
+                    throw new JiraApplicationException("Cannot set parent task: circular dependency detected", CommonErrorCode.InvalidArgument);
             }
 
             task.ParentTaskId = newParentTaskId;
@@ -186,10 +188,10 @@ namespace MTSJira.Infrastructure.Repositories
                 .FirstOrDefaultAsync(t => t.Id == relatedTaskId);
 
             if (relatedTask == null)
-                throw new Exception($"Related task with ID {relatedTaskId} not found");
+                throw new JiraApplicationException($"Related task with ID {relatedTaskId} not found", CommonErrorCode.ObjectNotFound);
 
             if (relatedTaskId == taskId)
-                throw new InvalidOperationException("Cannot create relationship to self");
+                throw new JiraApplicationException("Cannot create relationship to self", CommonErrorCode.InvalidArgument);
 
             var relationship = new TaskRelationshipData
             {
@@ -206,7 +208,7 @@ namespace MTSJira.Infrastructure.Repositories
                 .FirstOrDefaultAsync(t => t.Id == parentTaskId);
 
             if (parentTask == null)
-                throw new Exception($"Parent task with ID {parentTaskId} not found");
+                throw new JiraApplicationException($"Parent task with ID {parentTaskId} not found", CommonErrorCode.ObjectNotFound);
 
             task.ParentTaskId = parentTaskId;
         }

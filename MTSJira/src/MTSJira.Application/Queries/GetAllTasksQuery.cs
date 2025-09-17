@@ -5,11 +5,11 @@ using MTSJira.Application.Models.Task.Enums;
 
 namespace MTSJira.Application.Queries
 {
-    public class GetAllTasksQuery : IRequest<IEnumerable<TaskDto>>
+    public class GetAllTasksQuery : IRequest<ICollection<TaskDto>>
     {
     }
 
-    public class GetAllTasksQueryHandler : IRequestHandler<GetAllTasksQuery, IEnumerable<TaskDto>>
+    public class GetAllTasksQueryHandler : IRequestHandler<GetAllTasksQuery, ICollection<TaskDto>>
     {
         private readonly ITaskRepository _taskRepository;
 
@@ -18,7 +18,7 @@ namespace MTSJira.Application.Queries
             _taskRepository = taskRepository;
         }
 
-        public async Task<IEnumerable<TaskDto>> Handle(GetAllTasksQuery request, CancellationToken cancellationToken)
+        public async Task<ICollection<TaskDto>> Handle(GetAllTasksQuery request, CancellationToken cancellationToken)
         {
             var taskData = await _taskRepository.GetAllTasksAsync();
 

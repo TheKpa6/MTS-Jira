@@ -7,6 +7,8 @@ using MTSJira.Application.InfrastructureContracts.Repositories;
 using MTSJira.Application.Services.JwtService;
 using MTSJira.Application.Services.JwtService.Contracts;
 using MTSJira.Application.Services.JwtService.Options;
+using MTSJira.Application.Services.TaskService;
+using MTSJira.Application.Services.TaskService.Contract;
 using MTSJira.Infrastructure.Database.Contexts;
 using MTSJira.Infrastructure.Repositories;
 
@@ -55,6 +57,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<ITaskService, TaskService>();
 
 var app = builder.Build();
 

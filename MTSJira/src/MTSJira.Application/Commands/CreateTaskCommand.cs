@@ -7,7 +7,6 @@ namespace MTSJira.Application.Commands
     public class CreateTaskCommand : IRequest<int>
     {
         public CreateTaskRequest Request { get; set; }
-        public string Author { get; set; }
     }
 
     public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, int>
