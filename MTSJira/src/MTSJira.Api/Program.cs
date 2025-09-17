@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MTSJira.Api.Filters;
@@ -12,12 +11,12 @@ using MTSJira.Application.Services.JwtService.Options;
 using MTSJira.Application.Services.TaskService;
 using MTSJira.Application.Services.TaskService.Contract;
 using MTSJira.Infrastructure.Database.Contexts;
+using MTSJira.Infrastructure.Database.Extensions;
 using MTSJira.Infrastructure.Repositories;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -48,7 +47,6 @@ builder.Services.AddMediatR(cfg =>
 // JWT Authentication
 var jwtAuthOptions = builder.Configuration.GetSection(nameof(JwtAuthOptions)).Get<JwtAuthOptions>();
 builder.Services.Configure<JwtAuthOptions>(builder.Configuration.GetSection(nameof(JwtAuthOptions)));
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
                     {
@@ -70,30 +68,24 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     });
 
 // Services
-//builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
 builder.Services.AddScoped<IJwtService, JwtService>();
-builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+
+// Repository
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 
 var app = builder.Build();
 
-// Middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-//app.UseMiddleware<JwtMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-//// Apply migrations
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<JiraDbContext>();
-    dbContext.Database.Migrate();
-}
+app.MigrateDatabase();
 
 app.Run();
