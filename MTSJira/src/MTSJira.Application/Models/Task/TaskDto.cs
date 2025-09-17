@@ -1,4 +1,4 @@
-﻿using MTSJira.Domain.Enums;
+﻿using MTSJira.Domain.Entities.Enums;
 
 namespace MTSJira.Application.Models.Task
 {
@@ -6,7 +6,7 @@ namespace MTSJira.Application.Models.Task
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
-        public Domain.Enums.TaskStatus Status { get; set; }
+        public Domain.Entities.Enums.TaskStatus Status { get; set; }
         public TaskPriority Priority { get; set; }
         public string? Author { get; set; }
         public string? Assignee { get; set; }

@@ -1,4 +1,4 @@
-﻿using MTSJira.Domain.Enums;
+﻿using MTSJira.Domain.Entities.Enums;
 
 namespace MTSJira.Domain.Entities
 {
@@ -16,16 +16,5 @@ namespace MTSJira.Domain.Entities
         public virtual ICollection<TaskData> Subtasks { get; set; } = new List<TaskData>();
         public virtual ICollection<TaskRelationshipData> RelatedTasks { get; set; } = new List<TaskRelationshipData>();
         public virtual ICollection<TaskRelationshipData> RelatedToTasks { get; set; } = new List<TaskRelationshipData>();
-    }
-
-    public class TaskRelationshipData
-    {
-        public int Id { get; set; }
-
-        public int SourceTaskId { get; set; }
-        public virtual TaskData SourceTask { get; set; } = null!;
-
-        public int RelatedTaskId { get; set; }
-        public virtual TaskData RelatedTask { get; set; } = null!;
     }
 }

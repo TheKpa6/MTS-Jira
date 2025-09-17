@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using MTSJira.Application.Commands;
 using MTSJira.Application.Models.Task;
 using MTSJira.Application.Queries;
+using MTSJira.Domain.Entities.Enums;
 
 namespace MTSJira.Api.Controllers
 {
@@ -46,8 +47,8 @@ namespace MTSJira.Api.Controllers
                     Assignee = request.Assignee,
                     ParentTaskId = request.ParentTaskId,
                     Title = request.Title,
-                    Priority = Enum.Parse<Domain.Enums.TaskPriority>(request.Priority.ToString()),
-                    Status = Enum.Parse<Domain.Enums.TaskStatus>(request.Status.ToString()),
+                    Priority = Enum.Parse<TaskPriority>(request.Priority.ToString()),
+                    Status = Enum.Parse<Domain.Entities.Enums.TaskStatus>(request.Status.ToString()),
                 },
                 Author = author
             };
@@ -68,8 +69,8 @@ namespace MTSJira.Api.Controllers
                     Assignee = request.Assignee,
                     ParentTaskId = request.ParentTaskId,
                     Title = request.Title,
-                    Priority = Enum.Parse<Domain.Enums.TaskPriority>(request.Priority.ToString()),
-                    Status = Enum.Parse<Domain.Enums.TaskStatus>(request.Status.ToString()),
+                    Priority = Enum.Parse<TaskPriority>(request.Priority.ToString()),
+                    Status = Enum.Parse<Domain.Entities.Enums.TaskStatus>(request.Status.ToString()),
                     Author = request.Author,
                     RelatedTasks = request.RelatedTasks.Select(t => new RelatedTaskDto
                     {

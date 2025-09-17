@@ -21,53 +21,132 @@ namespace MTSJira.Infrastructure.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("MTSJira.Domain.Entities.EnumEntity<MTSJira.Domain.Entities.Enums.TaskPriority>", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("task_priorities", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 0,
+                            Name = "Low"
+                        },
+                        new
+                        {
+                            Id = 1,
+                            Name = "Medium"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "High"
+                        });
+                });
+
+            modelBuilder.Entity("MTSJira.Domain.Entities.EnumEntity<MTSJira.Domain.Entities.Enums.TaskStatus>", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("task_statuses", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 0,
+                            Name = "New"
+                        },
+                        new
+                        {
+                            Id = 1,
+                            Name = "InProgress"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Done"
+                        });
+                });
+
             modelBuilder.Entity("MTSJira.Domain.Entities.TaskData", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Assignee")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("assignee");
 
                     b.Property<string>("Author")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("author");
 
                     b.Property<int?>("ParentTaskId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("parent_task_id");
 
                     b.Property<int>("Priority")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("priority_id");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("status_id");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("title");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ParentTaskId");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("tasks", (string)null);
                 });
 
             modelBuilder.Entity("MTSJira.Domain.Entities.TaskRelationshipData", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("RelatedTaskId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("related_task_id");
 
                     b.Property<int>("SourceTaskId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("source_task_id");
 
                     b.HasKey("Id");
 
@@ -75,7 +154,7 @@ namespace MTSJira.Infrastructure.Database.Migrations
 
                     b.HasIndex("SourceTaskId");
 
-                    b.ToTable("TaskRelationships");
+                    b.ToTable("tasks_relationships", (string)null);
                 });
 
             modelBuilder.Entity("MTSJira.Domain.Entities.TaskData", b =>
