@@ -14,5 +14,7 @@ namespace MTSJira.Application.InfrastructureContracts.Repositories
         Task DeleteTaskAsync(TaskData taskData);
 
         Task<TaskData?> UpdateTaskAsync(int id, UpdateTaskRequest request);
+
+        Task UpdateTaskStatusAsync(int id, UpdateTaskStatusRequest request);
     }
 }

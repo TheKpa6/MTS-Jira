@@ -149,5 +149,33 @@ namespace MTSJira.Application.Services.TaskService
                 return ApplicationCommonServiceHandlerResult<TaskDto>.CreateException(ex);
             }
         }
+
+        public async Task<ApplicationCommonServiceHandlerResultNoData> UpdateTaskStatusAsync(int id, UpdateTaskStatusRequest request)
+        {
+            try
+            {
+                _logger.LogInformation("{MethodName}: Update task status with id: {Id} ", nameof(UpdateTaskStatusAsync), id);
+
+                var command = new UpdateTaskStatusCommand
+                {
+                    Request = request,
+                    Id = id
+                };
+
+                await _mediator.Send(command);
+
+                return ApplicationCommonServiceHandlerResultNoData.CreateSuccess();
+            }
+            catch (JiraApplicationException ex)
+            {
+                _logger.LogError(ex.Message);
+                return ApplicationCommonServiceHandlerResultNoData.CreateError(ex.ErrorCode, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "Can't update task with id: {Id}", id);
+                return ApplicationCommonServiceHandlerResultNoData.CreateException(ex);
+            }
+        }
     }
 }

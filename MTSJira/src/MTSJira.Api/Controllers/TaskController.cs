@@ -61,8 +61,8 @@ namespace MTSJira.Api.Controllers
                 Assignee = request.Assignee,
                 ParentTaskId = request.ParentTaskId,
                 Title = request.Title,
-                Priority = Enum.Parse<TaskPriority>(request.Priority.ToString()),
-                Status = Enum.Parse<Domain.Entities.Enums.TaskStatus>(request.Status.ToString()),
+                Priority = Enum.Parse<Application.Models.Task.Enums.TaskPriority>(request.Priority.ToString()),
+                Status = Enum.Parse<Application.Models.Task.Enums.TaskStatus>(request.Status.ToString()),
                 Author = author,
                 RelatedTasks = request.RelatedTasks.Select(t => new RelatedTaskDto
                 {
@@ -95,8 +95,8 @@ namespace MTSJira.Api.Controllers
                 Assignee = request.Assignee,
                 ParentTaskId = request.ParentTaskId,
                 Title = request.Title,
-                Priority = Enum.Parse<TaskPriority>(request.Priority.ToString()),
-                Status = Enum.Parse<Domain.Entities.Enums.TaskStatus>(request.Status.ToString()),
+                Priority = Enum.Parse<Application.Models.Task.Enums.TaskPriority>(request.Priority.ToString()),
+                Status = Enum.Parse<Application.Models.Task.Enums.TaskStatus>(request.Status.ToString()),
                 Author = request.Author,
                 RelatedTasks = request.RelatedTasks.Select(t => new RelatedTaskDto
                 {
@@ -126,6 +126,27 @@ namespace MTSJira.Api.Controllers
         public async Task<ActionResult<ApiResultNoData>> DeleteTask(int id)
         {
             var result = await _taskService.DeleteTaskAsync(id);
+
+            switch (result.ErrorCode)
+            {
+                case CommonErrorCode.None:
+                    return StatusCode(StatusCodes.Status204NoContent, new ApiResultNoData());
+                case CommonErrorCode.Exception:
+                    return BadRequest(new ApiResultNoData(result.Message, result.Ex.StackTrace));
+                default:
+                    return BadRequest(new ApiResultNoData(result.Message));
+            }
+        }
+
+        [HttpPatch("{id}/status")]
+        public async Task<ActionResult<ApiResultNoData>> UpdateTaskStatus([FromRoute] int id, [FromBody] Models.Task.UpdateTaskStatusRequest request)
+        {
+            var requestDto = new UpdateTaskStatusRequest
+            {
+                TaskStatus = Enum.Parse<Application.Models.Task.Enums.TaskStatus>(request.TaskStatus.ToString()),
+            };
+
+            var result = await _taskService.UpdateTaskStatusAsync(id, requestDto);
 
             switch (result.ErrorCode)
             {

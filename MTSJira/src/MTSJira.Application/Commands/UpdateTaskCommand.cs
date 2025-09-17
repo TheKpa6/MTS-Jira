@@ -4,7 +4,6 @@ using MTSJira.Application.Models.Task;
 using MTSJira.Application.Models.Task.Enums;
 using MTSJira.Domain.Common.Enums;
 using MTSJira.Domain.Exceptions;
-using System.Threading.Tasks;
 
 namespace MTSJira.Application.Commands
 {

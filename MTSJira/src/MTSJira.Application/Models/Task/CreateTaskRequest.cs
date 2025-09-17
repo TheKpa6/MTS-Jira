@@ -1,11 +1,11 @@
-﻿using MTSJira.Domain.Entities.Enums;
+﻿using MTSJira.Application.Models.Task.Enums;
 
 namespace MTSJira.Application.Models.Task
 {
     public class CreateTaskRequest
     {
         public string Title { get; set; } = string.Empty;
-        public Domain.Entities.Enums.TaskStatus Status { get; set; }
+        public Enums.TaskStatus Status { get; set; }
         public TaskPriority Priority { get; set; }
         public string? Author { get; set; }
         public string? Assignee { get; set; }

@@ -26,8 +26,8 @@ namespace MTSJira.Infrastructure.Repositories
                 var task = new TaskData
                 {
                     Title = request.Title,
-                    Status = request.Status,
-                    Priority = request.Priority,
+                    Status = Enum.Parse<Domain.Entities.Enums.TaskStatus>(request.Status.ToString()),
+                    Priority = Enum.Parse<Domain.Entities.Enums.TaskPriority>(request.Priority.ToString()),
                     Author = request.Author,
                     Assignee = request.Assignee,
                 };
@@ -112,11 +112,18 @@ namespace MTSJira.Infrastructure.Repositories
             }
         }
 
+        public async Task UpdateTaskStatusAsync(int id, UpdateTaskStatusRequest request)
+        {
+            await _dbContext.Tasks
+               .Where(t => t.Id == id)
+               .ExecuteUpdateAsync(u => u.SetProperty(m => m.Status, Enum.Parse<Domain.Entities.Enums.TaskStatus>(request.TaskStatus.ToString())));
+        }
+
         private void UpdateTaskProperties(TaskData task, UpdateTaskRequest request)
         {
             task.Title = request.Title;
-            task.Status = request.Status;
-            task.Priority = request.Priority;
+            task.Status = Enum.Parse<Domain.Entities.Enums.TaskStatus>(request.Status.ToString());
+            task.Priority = Enum.Parse<Domain.Entities.Enums.TaskPriority>(request.Priority.ToString());
             task.Author = request.Author;
             task.Assignee = request.Assignee;
         }
