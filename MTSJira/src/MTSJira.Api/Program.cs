@@ -86,6 +86,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-app.MigrateDatabase();
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<JiraDbContext>();
+    dbContext.Database.Migrate();
+}
 
 app.Run();

@@ -9,7 +9,7 @@ WORKDIR "/src/MTSJira.Api"
 RUN dotnet publish "MTSJira.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish
 
 FROM base AS final
-ENV ASPNETCORE_ENVIRONMENT=Prod
+ENV ASPNETCORE_ENVIRONMENT=Development
 ENV ASPNETCORE_HTTPS_PORT=44392
 ENV ASPNETCORE_URLS=https://+:44392;http://+:8080
 ENV Kestrel__Certificates__Default__Path=/root/.dotnet/https/cert-aspnetcore.pfx 
