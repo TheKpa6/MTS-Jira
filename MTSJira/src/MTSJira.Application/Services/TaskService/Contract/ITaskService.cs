@@ -7,7 +7,7 @@ namespace MTSJira.Application.Services.TaskService.Contract
     {
         Task<ApplicationCommonServiceHandlerResult<int>> AddTaskAsync(CreateTaskRequest request);
 
-        Task<ApplicationCommonServiceHandlerResult<TaskDto?>> GetTaskByIdAsync(int id);
+        Task<ApplicationCommonServiceHandlerResult<TaskDto>> GetTaskByIdAsync(int id);
 
         Task<ApplicationCommonServiceHandlerResult<ICollection<TaskDto>>> GetAllTasksAsync();
 

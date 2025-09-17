@@ -24,6 +24,8 @@ namespace MTSJira.Application.Services.TaskService
         {
             try
             {
+                _logger.LogInformation("{MethodName}: Add task with title: {Title} ", nameof(AddTaskAsync), request.Title);
+
                 var command = new CreateTaskCommand
                 {
                     Request = request
@@ -49,6 +51,8 @@ namespace MTSJira.Application.Services.TaskService
         {
             try
             {
+                _logger.LogInformation("{MethodName}: Delete task with id: {Id} ", nameof(DeleteTaskAsync), id);
+
                 var command = new DeleteTaskCommand
                 {
                     Id = id
@@ -74,6 +78,8 @@ namespace MTSJira.Application.Services.TaskService
         {
             try
             {
+                _logger.LogInformation("{MethodName}: Get all tasks", nameof(GetAllTasksAsync));
+
                 var query = new GetAllTasksQuery();
 
                 var result = await _mediator.Send(query);
@@ -92,25 +98,27 @@ namespace MTSJira.Application.Services.TaskService
             }
         }
 
-        public async Task<ApplicationCommonServiceHandlerResult<TaskDto?>> GetTaskByIdAsync(int id)
+        public async Task<ApplicationCommonServiceHandlerResult<TaskDto>> GetTaskByIdAsync(int id)
         {
             try
             {
+                _logger.LogInformation("{MethodName}: Get task with id: {Id} ", nameof(GetTaskByIdAsync), id);
+
                 var query = new GetTaskByIdQuery { Id = id };
 
                 var result = await _mediator.Send(query);
 
-                return ApplicationCommonServiceHandlerResult<TaskDto?>.CreateSuccess(result);
+                return ApplicationCommonServiceHandlerResult<TaskDto>.CreateSuccess(result);
             }
             catch (JiraApplicationException ex)
             {
                 _logger.LogError(ex.Message);
-                return ApplicationCommonServiceHandlerResult<TaskDto?>.CreateError(ex.ErrorCode, ex.Message);
+                return ApplicationCommonServiceHandlerResult<TaskDto>.CreateError(ex.ErrorCode, ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogCritical(ex, "Can't get task with id: {Id}", id);
-                return ApplicationCommonServiceHandlerResult<TaskDto?>.CreateException(ex);
+                return ApplicationCommonServiceHandlerResult<TaskDto>.CreateException(ex);
             }
         }
 
@@ -118,6 +126,8 @@ namespace MTSJira.Application.Services.TaskService
         {
             try
             {
+                _logger.LogInformation("{MethodName}: Update task with id: {Id} ", nameof(UpdateTaskAsync), id);
+
                 var command = new UpdateTaskCommand
                 {
                     Request = request,

@@ -2,6 +2,8 @@
 using MTSJira.Application.InfrastructureContracts.Repositories;
 using MTSJira.Application.Models.Task;
 using MTSJira.Application.Models.Task.Enums;
+using MTSJira.Domain.Common.Enums;
+using MTSJira.Domain.Exceptions;
 
 namespace MTSJira.Application.Queries
 {
@@ -22,6 +24,9 @@ namespace MTSJira.Application.Queries
         public async Task<TaskDto> Handle(GetTaskByIdQuery request, CancellationToken cancellationToken)
         {
             var taskData = await _taskRepository.GetTaskByIdAsync(request.Id);
+
+            if (taskData == null)
+                throw new JiraApplicationException($"Task with id {request.Id} not found", CommonErrorCode.ObjectNotFound);
 
             return new TaskDto
             {

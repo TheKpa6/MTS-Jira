@@ -1,5 +1,7 @@
 ﻿using MediatR;
 using MTSJira.Application.InfrastructureContracts.Repositories;
+using MTSJira.Domain.Common.Enums;
+using MTSJira.Domain.Exceptions;
 
 namespace MTSJira.Application.Commands
 {
@@ -19,9 +21,12 @@ namespace MTSJira.Application.Commands
 
         public async Task<bool> Handle(DeleteTaskCommand request, CancellationToken cancellationToken)
         {
-            var task = await _taskRepository.GetTaskByIdAsync(request.Id);
+            var taskData = await _taskRepository.GetTaskByIdAsync(request.Id);
 
-            await _taskRepository.DeleteTaskAsync(task);
+            if (taskData == null)
+                throw new JiraApplicationException($"Task with id {request.Id} not found", CommonErrorCode.ObjectNotFound);
+
+            await _taskRepository.DeleteTaskAsync(taskData);
 
             return true;
         }

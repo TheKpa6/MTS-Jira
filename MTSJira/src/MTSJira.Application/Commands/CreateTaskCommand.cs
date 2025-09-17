@@ -20,9 +20,9 @@ namespace MTSJira.Application.Commands
 
         public async Task<int> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
         {
-            var res = await _taskRepository.AddTaskAsync(request.Request);
+            var taskDataId = await _taskRepository.AddTaskAsync(request.Request);
 
-            return res;
+            return taskDataId;
         }
     }
 }

@@ -20,9 +20,9 @@ namespace MTSJira.Application.Queries
 
         public async Task<ICollection<TaskDto>> Handle(GetAllTasksQuery request, CancellationToken cancellationToken)
         {
-            var taskData = await _taskRepository.GetAllTasksAsync();
+            var tasksData = await _taskRepository.GetAllTasksAsync();
 
-            return taskData
+            return tasksData
             .Select(t => new TaskDto
             {
                 Id = t.Id,
