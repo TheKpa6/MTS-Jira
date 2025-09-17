@@ -5,7 +5,7 @@ namespace MTSJira.Application.InfrastructureContracts.Repositories
 {
     public interface ITaskRepository
     {
-        Task AddTaskAsync(TaskData taskData);
+        Task<int> AddTaskAsync(CreateTaskRequest request);
 
         Task<TaskData?> GetTaskByIdAsync(int id);
 
@@ -13,8 +13,6 @@ namespace MTSJira.Application.InfrastructureContracts.Repositories
 
         Task DeleteTaskAsync(TaskData taskData);
 
-        Task UpdateTaskAsync(TaskData taskData);
-
-        Task<TaskData?> Update(int id, UpdateTaskRequest request);
+        Task<TaskData?> UpdateTaskAsync(int id, UpdateTaskRequest request);
     }
 }

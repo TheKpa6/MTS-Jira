@@ -15,18 +15,41 @@ namespace MTSJira.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task AddTaskAsync(TaskData taskData)
+        public async Task<int> AddTaskAsync(CreateTaskRequest request)
         {
-            await _dbContext.Tasks.AddAsync(taskData);
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
-            await _dbContext.SaveChangesAsync();
-        }
+            try
+            {
+                var task = new TaskData
+                {
+                    Title = request.Title,
+                    Status = request.Status,
+                    Priority = request.Priority,
+                    Author = request.Author,
+                    Assignee = request.Assignee,
+                };
 
-        public async Task UpdateTaskAsync(TaskData taskData)
-        {
-            _dbContext.Tasks.Update(taskData);
+                if (request.ParentTaskId.HasValue)
+                {
+                    await SetParentTask(task, request.ParentTaskId.Value);
+                }
 
-            await _dbContext.SaveChangesAsync();
+                await _dbContext.Tasks.AddAsync(task);
+                await _dbContext.SaveChangesAsync();
+
+                await AddTaskRelationships(task, request);
+
+                await _dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return task.Id;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task DeleteTaskAsync(TaskData taskData)
@@ -56,7 +79,7 @@ namespace MTSJira.Infrastructure.Repositories
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 
-        public async Task<TaskData?> Update(int id, UpdateTaskRequest request)
+        public async Task<TaskData?> UpdateTaskAsync(int id, UpdateTaskRequest request)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
@@ -175,6 +198,36 @@ namespace MTSJira.Infrastructure.Repositories
             };
 
             await _dbContext.TaskRelationships.AddAsync(relationship);
+        }
+
+        private async Task SetParentTask(TaskData task, int parentTaskId)
+        {
+            var parentTask = await _dbContext.Tasks
+                .FirstOrDefaultAsync(t => t.Id == parentTaskId);
+
+            if (parentTask == null)
+                throw new Exception($"Parent task with ID {parentTaskId} not found");
+
+            task.ParentTaskId = parentTaskId;
+        }
+
+        private async Task AddTaskRelationships(TaskData task, CreateTaskRequest request)
+        {
+            foreach (var relatedTaskDto in request.RelatedTasks)
+            {
+                await ValidateAndAddRelationship(
+                    task.Id,
+                    relatedTaskDto.RelatedTaskId,
+                    true);
+            }
+
+            foreach (var incomingRelationDto in request.RelatedToTasks)
+            {
+                await ValidateAndAddRelationship(
+                    task.Id,
+                    incomingRelationDto.SourceTaskId,
+                    false);
+            }
         }
     }
 }

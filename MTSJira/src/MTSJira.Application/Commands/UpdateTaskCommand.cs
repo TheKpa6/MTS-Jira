@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using MTSJira.Application.InfrastructureContracts.Repositories;
 using MTSJira.Application.Models.Task;
+using MTSJira.Application.Models.Task.Enums;
 
 namespace MTSJira.Application.Commands
 {
@@ -21,7 +22,7 @@ namespace MTSJira.Application.Commands
 
         public async Task<TaskDto> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
         {
-            var taskData = await _taskRepository.Update(request.Id, request.Request);
+            var taskData = await _taskRepository.UpdateTaskAsync(request.Id, request.Request);
 
             return new TaskDto
             {
@@ -30,8 +31,8 @@ namespace MTSJira.Application.Commands
                 ParentTaskId = taskData.ParentTaskId,
                 Assignee = taskData.Assignee,
                 Author = taskData.Author,
-                Priority = taskData.Priority,
-                Status = taskData.Status,
+                Priority = Enum.Parse<TaskPriority>(taskData.Priority.ToString()),
+                Status = Enum.Parse<Models.Task.Enums.TaskStatus>(taskData.Status.ToString()),
                 SubtasksIds = taskData.Subtasks.Select(t => taskData.Id).ToList(),
                 RelatedTasksIds = taskData.RelatedTasks.Select(t => new TaskRelationshipDto
                 {

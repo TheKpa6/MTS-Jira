@@ -49,6 +49,15 @@ namespace MTSJira.Api.Controllers
                     Title = request.Title,
                     Priority = Enum.Parse<TaskPriority>(request.Priority.ToString()),
                     Status = Enum.Parse<Domain.Entities.Enums.TaskStatus>(request.Status.ToString()),
+                    Author = author,
+                    RelatedTasks = request.RelatedTasks.Select(t => new RelatedTaskDto
+                    {
+                        RelatedTaskId = t.RelatedTaskId
+                    }).ToList(),
+                    RelatedToTasks = request.RelatedToTasks.Select(t => new RelatedToTasksDto
+                    {
+                        SourceTaskId = t.SourceTaskId,
+                    }).ToList()
                 },
                 Author = author
             };

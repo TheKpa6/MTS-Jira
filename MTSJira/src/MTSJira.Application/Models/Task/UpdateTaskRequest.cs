@@ -14,14 +14,4 @@ namespace MTSJira.Application.Models.Task
         public List<RelatedTaskDto> RelatedTasks { get; set; } = new();
         public List<RelatedToTasksDto> RelatedToTasks { get; set; } = new();
     }
-
-    public class RelatedTaskDto
-    {
-        public int RelatedTaskId { get; set; }
-    }
-
-    public class RelatedToTasksDto
-    {
-        public int SourceTaskId { get; set; }
-    }
 }

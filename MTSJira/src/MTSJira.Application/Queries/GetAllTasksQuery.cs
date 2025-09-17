@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using MTSJira.Application.InfrastructureContracts.Repositories;
 using MTSJira.Application.Models.Task;
+using MTSJira.Application.Models.Task.Enums;
 
 namespace MTSJira.Application.Queries
 {
@@ -29,8 +30,8 @@ namespace MTSJira.Application.Queries
                 ParentTaskId = t.ParentTaskId,
                 Assignee = t.Assignee,
                 Author = t.Author,
-                Priority = t.Priority,
-                Status = t.Status,
+                Priority = Enum.Parse<TaskPriority>(t.Priority.ToString()),
+                Status = Enum.Parse<Models.Task.Enums.TaskStatus>(t.Status.ToString()),
                 SubtasksIds = t.Subtasks.Select(t => t.Id).ToList(),
                 RelatedTasksIds = t.RelatedTasks.Select(t => new TaskRelationshipDto
                 {

@@ -21,19 +21,9 @@ namespace MTSJira.Application.Commands
 
         public async Task<int> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
         {
-            var taskData = new Domain.Entities.TaskData
-            {
-                Assignee = request.Request.Assignee,
-                Author = request.Author,
-                ParentTaskId = request.Request.ParentTaskId,
-                Priority = request.Request.Priority,
-                Status = request.Request.Status,
-                Title = request.Request.Title,
-            };
+            var res = await _taskRepository.AddTaskAsync(request.Request);
 
-            await _taskRepository.AddTaskAsync(taskData);
-
-            return taskData.Id;
+            return res;
         }
     }
 }

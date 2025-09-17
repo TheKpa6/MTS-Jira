@@ -12,14 +12,4 @@
         public List<RelatedTask> RelatedTasks { get; set; } = new();
         public List<RelatedToTasks> RelatedToTasks { get; set; } = new();
     }
-
-    public class RelatedTask
-    {
-        public int RelatedTaskId { get; set; }
-    }
-
-    public class RelatedToTasks
-    {
-        public int SourceTaskId { get; set; }
-    }
 }
