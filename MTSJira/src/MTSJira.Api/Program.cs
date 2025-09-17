@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MTSJira.Api.Filters;
 using MTSJira.Application.Commands;
@@ -11,6 +13,7 @@ using MTSJira.Application.Services.TaskService;
 using MTSJira.Application.Services.TaskService.Contract;
 using MTSJira.Infrastructure.Database.Contexts;
 using MTSJira.Infrastructure.Repositories;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,14 +46,27 @@ builder.Services.AddMediatR(cfg =>
 
 
 // JWT Authentication
-//var jwtSettings = builder.Configuration.GetSection("Jwt");
-//var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"]);
+var jwtAuthOptions = builder.Configuration.GetSection(nameof(JwtAuthOptions)).Get<JwtAuthOptions>();
+builder.Services.Configure<JwtAuthOptions>(builder.Configuration.GetSection(nameof(JwtAuthOptions)));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
                     {
                         options.RequireHttpsMetadata = false;
-                        options.TokenValidationParameters = JwtAuthOptions.GetSystemTokenValidationParameters();
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuer = true,
+                            ValidIssuer = jwtAuthOptions!.Issuer,
+                            ValidateAudience = true,
+                            ValidAudience = jwtAuthOptions!.Audience,
+                            ValidateLifetime = true,
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtAuthOptions!.Key)),
+                            ValidateIssuerSigningKey = true,
+
+                            RequireExpirationTime = true,
+
+                            ClockSkew = TimeSpan.Zero
+                        };
                     });
 
 // Services

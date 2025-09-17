@@ -13,6 +13,6 @@ namespace MTSJira.Application.Services.TaskService.Contract
 
         Task<ApplicationCommonServiceHandlerResultNoData> DeleteTaskAsync(int id);
 
-        Task<ApplicationCommonServiceHandlerResult<TaskDto?>> UpdateTaskAsync(int id, UpdateTaskRequest request);
+        Task<ApplicationCommonServiceHandlerResult<TaskDto>> UpdateTaskAsync(int id, UpdateTaskRequest request);
     }
 }

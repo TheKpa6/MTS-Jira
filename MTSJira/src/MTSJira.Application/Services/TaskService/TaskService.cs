@@ -122,7 +122,7 @@ namespace MTSJira.Application.Services.TaskService
             }
         }
 
-        public async Task<ApplicationCommonServiceHandlerResult<TaskDto?>> UpdateTaskAsync(int id, UpdateTaskRequest request)
+        public async Task<ApplicationCommonServiceHandlerResult<TaskDto>> UpdateTaskAsync(int id, UpdateTaskRequest request)
         {
             try
             {
@@ -136,17 +136,17 @@ namespace MTSJira.Application.Services.TaskService
 
                 var result = await _mediator.Send(command);
 
-                return ApplicationCommonServiceHandlerResult<TaskDto?>.CreateSuccess(result);
+                return ApplicationCommonServiceHandlerResult<TaskDto>.CreateSuccess(result);
             }
             catch (JiraApplicationException ex)
             {
                 _logger.LogError(ex.Message);
-                return ApplicationCommonServiceHandlerResult<TaskDto?>.CreateError(ex.ErrorCode, ex.Message);
+                return ApplicationCommonServiceHandlerResult<TaskDto>.CreateError(ex.ErrorCode, ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogCritical(ex, "Can't update task with id: {Id}", id);
-                return ApplicationCommonServiceHandlerResult<TaskDto?>.CreateException(ex);
+                return ApplicationCommonServiceHandlerResult<TaskDto>.CreateException(ex);
             }
         }
     }

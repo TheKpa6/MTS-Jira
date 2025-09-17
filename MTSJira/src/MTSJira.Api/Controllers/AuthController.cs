@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MTSJira.Api.Models.Auth;
+using MTSJira.Api.Models;
 using MTSJira.Application.Services.JwtService.Contracts;
+using MTSJira.Domain.Common.Enums;
 using System.IdentityModel.Tokens.Jwt;
 using LoginRequest = MTSJira.Api.Models.Auth.LoginRequest;
 
@@ -20,16 +21,24 @@ namespace MTSJira.Api.Controllers
         }
 
         [HttpPost("login")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponse))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
-        public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest model)
+        //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponse))]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+        public ActionResult<ApiResult<string>> Login([FromBody] LoginRequest request)
         {
-            var token = _jwtService.GetJwtSecurityToken(model.Login);
+            if (request.Password != "qwerty123")
+                return BadRequest(new ApiResultNoData("The password is incorrect. Use password: 'qwerty123'"));
 
-            return Ok(new LoginResponse
+            var result = _jwtService.GetJwtSecurityToken(request.Login);
+
+            switch (result.ErrorCode)
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(token)
-            });
+                case CommonErrorCode.None:
+                    return Ok(new ApiResult<string>(new JwtSecurityTokenHandler().WriteToken(result.Data)));
+                case CommonErrorCode.Exception:
+                    return BadRequest(new ApiResultNoData(result.Message, result.Ex.StackTrace));
+                default:
+                    return BadRequest(new ApiResultNoData(result.Message));
+            }
         }
     }
 }

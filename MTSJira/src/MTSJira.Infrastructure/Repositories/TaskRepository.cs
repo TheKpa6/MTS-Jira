@@ -69,6 +69,7 @@ namespace MTSJira.Infrastructure.Repositories
                 .Include(t => t.Subtasks)
                 .Include(t => t.RelatedTasks)
                 .Include(t => t.RelatedToTasks)
+                .AsSplitQuery()
                 .ToListAsync();
         }
 
@@ -78,6 +79,7 @@ namespace MTSJira.Infrastructure.Repositories
                 .Include(t => t.Subtasks)
                 .Include(t => t.RelatedTasks)
                 .Include(t => t.RelatedToTasks)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 

@@ -1,10 +1,10 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Principal;
+﻿using MTSJira.Application.Handlers;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace MTSJira.Application.Services.JwtService.Contracts
 {
     public interface IJwtService
     {
-        JwtSecurityToken GetJwtSecurityToken(string login);
+        ApplicationCommonServiceHandlerResult<JwtSecurityToken> GetJwtSecurityToken(string login);
     }
 }
