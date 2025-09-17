@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MTSJira.Domain.Entities;
+using MTSJira.Domain.Entities.Enums;
 
 namespace MTSJira.Infrastructure.Database.Configurations
 {
@@ -21,6 +22,9 @@ namespace MTSJira.Infrastructure.Database.Configurations
                    .WithMany(t => t.Subtasks)
                    .HasForeignKey(t => t.ParentTaskId)
                    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(typeof(EnumEntity<Domain.Entities.Enums.TaskStatus>)).WithMany().HasForeignKey(nameof(TaskData.Status));
+            builder.HasOne(typeof(EnumEntity<TaskPriority>)).WithMany().HasForeignKey(nameof(TaskData.Priority));
         }
     }
 }
